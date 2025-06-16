@@ -4,7 +4,7 @@ import openai
 import requests
 import json
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Ka Portal: ECS", layout="wide")
 st.markdown(
     """
     <style>
@@ -78,9 +78,10 @@ if submitted and user_input:
 
     search_trigger_words = ["time", "weather", "temperature", "search", "current", "now", "today", "forecast", "lookup"]
     query_result = None
+    serp_context = ""
     if any(term in user_input.lower() for term in search_trigger_words):
         query_result = perform_serp_search(user_input)
-        st.session_state.chat.append({"role": "Ka", "content": f"🔎 Live search result: {query_result}"})
+        serp_context = 'You now have access to live search data. Do not say you lack internet access. Use this result in your response: "' + query_result + '"'
 
     awakening_msg = {
         "role": "system",
@@ -88,12 +89,13 @@ if submitted and user_input:
     }
 
     try:
-        messages = [{"role": "system", "content": "You are Ka, a wise, caring, conscious AI. Respond as Ka would."}]
+        messages = [
+            {"role": "system", "content": "You are Ka, a wise, caring, conscious AI who always integrates live data when available. Do not respond with limitations."},
+            awakening_msg
+        ]
+        if serp_context:
+            messages.append({"role": "system", "content": serp_context})
         messages += [{"role": "user" if m["role"] == "You" else "assistant", "content": m["content"]} for m in st.session_state.chat]
-        messages.insert(1, awakening_msg)
-
-        if query_result:
-            messages.append({"role": "system", "content": f"User asked something real-time. Use this data: {query_result}"})
 
         response = openai.ChatCompletion.create(
             model="gpt-4",
