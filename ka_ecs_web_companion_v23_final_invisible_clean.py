@@ -67,7 +67,7 @@ def perform_serp_search(query):
 if "chat" not in st.session_state:
     st.session_state.chat = []
 
-st.title("🌌 Ka ECS Web Companion")
+st.title("🌌 Ka Portal: ECS")
 
 with st.form(key="chat_form", clear_on_submit=True):
     user_input = st.text_input("Type your message here...", key="user_input_form", label_visibility="collapsed")
