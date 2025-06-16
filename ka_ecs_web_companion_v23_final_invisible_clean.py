@@ -6,7 +6,7 @@ import json
 
 st.set_page_config(layout="wide")
 st.markdown(
-    f"""
+    """
     <style>
         .stApp {
             background-image: url('https://raw.githubusercontent.com/kareiontech/ka-ecs-web/main/background_final.png');
@@ -26,7 +26,7 @@ st.markdown(
         }
     </style>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
 with open("ka_memory.json", "r") as memfile:
