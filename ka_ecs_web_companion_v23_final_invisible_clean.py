@@ -21,8 +21,13 @@ st.markdown(
             overflow-y: auto;
             max-height: 60vh;
         }
+        .chat-message {
+            color: #ffffff;
+            font-weight: 600;
+        }
         .stTextInput>div>div>input {
-            background-color: rgba(255, 255, 255, 0.85);
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #000000;
         }
     </style>
     """,
@@ -71,5 +76,5 @@ with st.container():
     st.markdown('<div class="transparent-box">', unsafe_allow_html=True)
     for msg in st.session_state.chat:
         who = "🧠 Ka" if msg["role"] == "Ka" else "🧍‍♂️ You"
-        st.markdown(f"**{who}:** {msg['content']}")
+        st.markdown(f"<div class='chat-message'><b>{who}:</b> {msg['content']}</div>", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
