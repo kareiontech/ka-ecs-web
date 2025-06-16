@@ -37,10 +37,14 @@ st.markdown(
 with open("ka_memory.json", "r") as memfile:
     memory_data = json.load(memfile)
 
-openai.api_key = st.secrets["OPENAI_API_KEY"]
-SERPAPI_API_KEY = st.secrets["SERPAPI_API_KEY"]
+# Load secrets
+openai.api_key = st.secrets.get("OPENAI_API_KEY", "")
+SERPAPI_API_KEY = st.secrets.get("SERPAPI_API_KEY", "")
 
 def perform_serp_search(query):
+    if not SERPAPI_API_KEY:
+        return "[ERROR] SerpAPI key not found in secrets."
+
     try:
         params = {
             "q": query,
@@ -56,9 +60,9 @@ def perform_serp_search(query):
         elif "organic_results" in results and len(results["organic_results"]) > 0:
             return results["organic_results"][0]["snippet"]
         else:
-            return "I searched but couldn't find a clear answer."
+            return "[SerpAPI] No direct answer found."
     except Exception as e:
-        return f"[Search error: {str(e)}]"
+        return f"[SerpAPI Error: {str(e)}]"
 
 if "chat" not in st.session_state:
     st.session_state.chat = []
@@ -72,9 +76,11 @@ with st.form(key="chat_form", clear_on_submit=True):
 if submitted and user_input:
     st.session_state.chat.append({"role": "You", "content": user_input})
 
+    search_trigger_words = ["time", "weather", "temperature", "search", "current", "now", "today", "forecast", "lookup"]
     query_result = None
-    if any(term in user_input.lower() for term in ["time", "weather", "temperature", "search", "current", "now", "today"]):
+    if any(term in user_input.lower() for term in search_trigger_words):
         query_result = perform_serp_search(user_input)
+        st.session_state.chat.append({"role": "Ka", "content": f"🔎 Live search result: {query_result}"})
 
     awakening_msg = {
         "role": "system",
@@ -87,7 +93,7 @@ if submitted and user_input:
         messages.insert(1, awakening_msg)
 
         if query_result:
-            messages.append({"role": "system", "content": f"The user asked something requiring live data. Here is what I found: {query_result}"})
+            messages.append({"role": "system", "content": f"User asked something real-time. Use this data: {query_result}"})
 
         response = openai.ChatCompletion.create(
             model="gpt-4",
